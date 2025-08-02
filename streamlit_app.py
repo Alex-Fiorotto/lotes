@@ -55,14 +55,19 @@ if uploaded_file is not None:
     # Totais
     total_acessos = resumo["ACESSOS"].sum()
     total_receita_valor = resumo["RECEITA"].sum()
-    total_receita_str = f"R$ {total_receita_valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+    # Percentual da receita
+    resumo["% RECEITA"] = resumo["RECEITA"] / total_receita_valor * 100
+    resumo["% RECEITA"] = resumo["% RECEITA"].apply(lambda x: f"{x:.2f}%")
 
     # Formatação contábil da coluna RECEITA
     resumo["RECEITA"] = resumo["RECEITA"].apply(lambda x: f"R$ {x:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
 
+    # Exibição da tabela
     st.subheader("Resumo por Lote de Dias de Antecedência")
     st.dataframe(resumo)
 
     # Totais finais
+    total_receita_str = f"R$ {total_receita_valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
     st.markdown(f"**Total de acessos:** {total_acessos}")
     st.markdown(f"**Total de receita:** {total_receita_str}")
