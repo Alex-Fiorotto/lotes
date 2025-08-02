@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 
-# Função para classificar os lotes
 def classificar_lote(dias):
     if dias <= 3:
         return "Lote 0 a 3 dias"
@@ -40,7 +39,7 @@ if uploaded_file is not None:
 
     # Agrupamento por lote
     resumo = df.groupby("LOTE").agg(
-        QUANTIDADE=("Valor Pago", "count"),
+        ACESSOS=("Valor Pago", "count"),
         RECEITA=("Valor Pago", "sum")
     ).reset_index()
 
@@ -53,8 +52,17 @@ if uploaded_file is not None:
     resumo["ordem"] = resumo["LOTE"].apply(lambda x: ordem_lotes.index(x))
     resumo = resumo.sort_values("ordem").drop(columns="ordem")
 
-    # Formatação contábil da receita
+    # Totais
+    total_acessos = resumo["ACESSOS"].sum()
+    total_receita_valor = resumo["RECEITA"].sum()
+    total_receita_str = f"R$ {total_receita_valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+    # Formatação contábil da coluna RECEITA
     resumo["RECEITA"] = resumo["RECEITA"].apply(lambda x: f"R$ {x:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
 
     st.subheader("Resumo por Lote de Dias de Antecedência")
     st.dataframe(resumo)
+
+    # Totais finais
+    st.markdown(f"**Total de acessos:** {total_acessos}")
+    st.markdown(f"**Total de receita:** {total_receita_str}")
