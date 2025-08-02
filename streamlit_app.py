@@ -31,6 +31,15 @@ if uploaded_file is not None:
     # Remover entradas inválidas
     df = df.dropna(subset=["Data/Hora", "Data/Hora - leitura", "Valor Pago"])
 
+    # Remover categorias indesejadas
+    categorias_excluir = [
+        "MULTICLUBES - DAY-USE",
+        "EcoVip s/ Cadastro",
+        "ECO LOUNGE",
+        "CASA DA ÁRVORE"
+    ]
+    df = df[~df["Categoria"].isin(categorias_excluir)]
+
     # Cálculo dos dias de antecedência
     df["dias_antecedencia"] = (df["Data/Hora - leitura"] - df["Data/Hora"]).dt.days
 
@@ -63,7 +72,7 @@ if uploaded_file is not None:
     # Formatação contábil da coluna RECEITA
     resumo["RECEITA"] = resumo["RECEITA"].apply(lambda x: f"R$ {x:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
 
-    # Exibição da tabela
+    # Exibição da tabela resumida
     st.subheader("Resumo por Lote de Dias de Antecedência")
     st.dataframe(resumo)
 
@@ -71,3 +80,7 @@ if uploaded_file is not None:
     total_receita_str = f"R$ {total_receita_valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
     st.markdown(f"**Total de acessos:** {total_acessos}")
     st.markdown(f"**Total de receita:** {total_receita_str}")
+
+    # Exibição da tabela bruta final
+    st.subheader("Dados Brutos (após filtro de categorias)")
+    st.dataframe(df)
